@@ -90,8 +90,8 @@ public abstract class ForwardingMappingVisitor implements MappingVisitor {
 	}
 
 	@Override
-	public boolean visitMethodVar(int lvtRowIndex, int lvIndex, int startOpIdx, int endOpIdx, @Nullable String srcName) throws IOException {
-		return next.visitMethodVar(lvtRowIndex, lvIndex, startOpIdx, endOpIdx, srcName);
+	public boolean visitMethodVar(int lvtRowIndex, int lvIndex, @Nullable String srcName) throws IOException {
+		return next.visitMethodVar(lvtRowIndex, lvIndex, srcName);
 	}
 
 	@Override

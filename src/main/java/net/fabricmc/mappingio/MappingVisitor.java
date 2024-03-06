@@ -115,14 +115,10 @@ public interface MappingVisitor {
 	 * @param lvIndex The var's local variable index in the current method. For each additional variable,
 	 * it gets incremented by 1, or by 2 if it's a primitive {@code long} or {@code double}.
 	 * The first variable starts where the last parameter left off (plus the offset).
-	 * @param startOpIdx Required for cases when the lvIndex alone doesn't uniquely identify a local variable.
-	 * This is the case when variables get re-defined later on, in which case most decompilers opt to
-	 * not re-define the existing var, but instead generate a new one (with both sharing the same lvIndex).
-	 * @param endOpIdx Counterpart to startOpIdx. Exclusive.
 	 * @param srcName The optional source name of the variable.
 	 * @return Whether or not the var's content should be visited too.
 	 */
-	boolean visitMethodVar(int lvtRowIndex, int lvIndex, int startOpIdx, int endOpIdx, @Nullable String srcName) throws IOException;
+	boolean visitMethodVar(int lvtRowIndex, int lvIndex, @Nullable String srcName) throws IOException;
 
 	/**
 	 * Finish the visitation pass.

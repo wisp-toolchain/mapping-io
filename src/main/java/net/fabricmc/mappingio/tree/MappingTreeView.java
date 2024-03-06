@@ -334,7 +334,7 @@ public interface MappingTreeView {
 
 		Collection<? extends MethodVarMappingView> getVars();
 		@Nullable
-		MethodVarMappingView getVar(int lvtRowIndex, int lvIndex, int startOpIdx, int endOpIdx, @Nullable String srcName);
+		MethodVarMappingView getVar(int lvtRowIndex, int lvIndex, @Nullable String srcName);
 	}
 
 	interface MethodArgMappingView extends ElementMappingView {
@@ -347,8 +347,6 @@ public interface MappingTreeView {
 		MethodMappingView getMethod();
 		int getLvtRowIndex();
 		int getLvIndex();
-		int getStartOpIdx();
-		int getEndOpIdx();
 	}
 
 	int SRC_NAMESPACE_ID = -1;

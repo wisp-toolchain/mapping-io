@@ -206,6 +206,16 @@ public final class EnigmaFileReader {
 
 						readElement(reader, MappedElementKind.METHOD_ARG, indent, commentSb, visitor);
 					}
+				} else if (reader.nextCol("LOCAL")) { // method parameter: LOCAL <lv-index> <name-b>
+					int lvIndex = reader.nextIntCol();
+					if (lvIndex < 0) throw new IOException("missing/invalid variable lv-index in line "+reader.getLineNumber());
+
+					if (visitor.visitMethodVar(-1, lvIndex, null)) {
+						String dstName = reader.nextCol();
+						if (dstName != null && !dstName.isEmpty()) visitor.visitDstName(MappedElementKind.METHOD_VAR, 0, dstName);
+
+						readElement(reader, MappedElementKind.METHOD_VAR, indent, commentSb, visitor);
+					}
 				}
 			}
 		}

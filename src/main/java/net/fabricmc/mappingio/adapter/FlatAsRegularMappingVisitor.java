@@ -129,7 +129,7 @@ public final class FlatAsRegularMappingVisitor implements MappingVisitor {
 	}
 
 	@Override
-	public boolean visitMethodVar(int lvtRowIndex, int lvIndex, int startOpIdx, int endOpIdx, @Nullable String srcName) {
+	public boolean visitMethodVar(int lvtRowIndex, int lvIndex, @Nullable String srcName) {
 		this.srcMemberSubName = srcName;
 		this.argIdx = lvtRowIndex;
 		this.lvIndex = lvIndex;

@@ -207,9 +207,9 @@ public class VisitEndTest {
 		}
 
 		@Override
-		public boolean visitMethodVar(int lvtRowIndex, int lvIndex, int startOpIdx, int endOpIdx, @Nullable String srcName) throws IOException {
+		public boolean visitMethodVar(int lvtRowIndex, int lvIndex, @Nullable String srcName) throws IOException {
 			check();
-			tree.visitMethodVar(lvtRowIndex, lvIndex, startOpIdx, endOpIdx, srcName);
+			tree.visitMethodVar(lvtRowIndex, lvIndex, srcName);
 			return true;
 		}
 

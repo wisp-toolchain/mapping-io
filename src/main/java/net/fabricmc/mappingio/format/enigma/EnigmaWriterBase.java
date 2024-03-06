@@ -89,8 +89,11 @@ abstract class EnigmaWriterBase implements MappingWriter {
 	}
 
 	@Override
-	public boolean visitMethodVar(int lvtRowIndex, int lvIndex, int startOpIdx, int endOpIdx, @Nullable String srcName) {
-		return false;
+	public boolean visitMethodVar(int lvtRowIndex, int lvIndex, @Nullable String srcName) throws IOException {
+		writeIndent(1);
+		writer.write("LOCAL ");
+		writer.write(Integer.toString(lvIndex));
+		return true;
 	}
 
 	@Override

@@ -179,15 +179,13 @@ public final class Tiny2FileReader {
 				}
 			} else if (reader.nextCol("v")) { // method variable: v <lv-index> <lv-start-offset> <optional-lvt-index> <names>...
 				int lvIndex = reader.nextIntCol();
+				System.out.println("LV Index: " + lvIndex + " " + (lvIndex < 0));
 				if (lvIndex < 0) throw new IOException("missing/invalid variable lv-index in line "+reader.getLineNumber());
-				int startOpIdx = reader.nextIntCol();
-				if (startOpIdx < 0) throw new IOException("missing/invalid variable lv-start-offset in line "+reader.getLineNumber());
-				int lvtRowIndex = reader.nextIntCol();
 				String srcName = reader.nextCol(escapeNames);
 				if (srcName == null) throw new IOException("missing var-name-a column in line "+reader.getLineNumber());
 				if (srcName.isEmpty()) srcName = null;
 
-				if (visitor.visitMethodVar(lvtRowIndex, lvIndex, startOpIdx, -1, srcName)) {
+				if (visitor.visitMethodVar(-1, lvIndex, srcName)) {
 					readElement(reader, MappedElementKind.METHOD_VAR, dstNsCount, escapeNames, visitor);
 				}
 			} else if (reader.nextCol("c")) { // comment: c <comment>

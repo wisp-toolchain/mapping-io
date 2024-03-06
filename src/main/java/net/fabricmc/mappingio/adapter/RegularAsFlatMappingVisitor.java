@@ -285,7 +285,7 @@ public final class RegularAsFlatMappingVisitor implements FlatMappingVisitor {
 			lastLvIndex = lvIndex;
 			lastStartOpIdx = startOpIdx;
 			lastMethodSubIsArg = false;
-			relayLastMethodSub = next.visitMethodVar(lvtRowIndex, lvIndex, startOpIdx, endOpIdx, srcName) && visitDstNames(MappedElementKind.METHOD_VAR, dstNames, dstName);
+			relayLastMethodSub = next.visitMethodVar(lvtRowIndex, lvIndex, srcName) && visitDstNames(MappedElementKind.METHOD_VAR, dstNames, dstName);
 		}
 
 		return relayLastMethodSub;

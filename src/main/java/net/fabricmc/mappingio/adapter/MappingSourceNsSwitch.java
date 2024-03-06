@@ -186,15 +186,13 @@ public final class MappingSourceNsSwitch extends ForwardingMappingVisitor {
 	}
 
 	@Override
-	public boolean visitMethodVar(int lvtRowIndex, int lvIndex, int startOpIdx, int endOpIdx, @Nullable String srcName) throws IOException {
+	public boolean visitMethodVar(int lvtRowIndex, int lvIndex, @Nullable String srcName) throws IOException {
 		assert classMapReady;
-		if (passThrough) return next.visitMethodVar(lvtRowIndex, lvIndex, startOpIdx, endOpIdx, srcName);
+		if (passThrough) return next.visitMethodVar(lvtRowIndex, lvIndex, srcName);
 
 		this.srcName = srcName;
 		this.argIdx = lvtRowIndex;
 		this.lvIndex = lvIndex;
-		this.startOpIdx = startOpIdx;
-		this.endOpIdx = endOpIdx;
 
 		return true;
 	}
@@ -269,7 +267,7 @@ public final class MappingSourceNsSwitch extends ForwardingMappingVisitor {
 			relay = next.visitMethodArg(argIdx, lvIndex, dstName);
 			break;
 		case METHOD_VAR:
-			relay = next.visitMethodVar(argIdx, lvIndex, startOpIdx, endOpIdx, dstName);
+			relay = next.visitMethodVar(argIdx, lvIndex, dstName);
 			break;
 		default:
 			throw new IllegalStateException();
@@ -315,7 +313,7 @@ public final class MappingSourceNsSwitch extends ForwardingMappingVisitor {
 
 	private String srcName;
 	private String srcDesc;
-	private int argIdx, lvIndex, startOpIdx, endOpIdx;
+	private int argIdx, lvIndex;
 	private String[] dstNames;
 	private String[] dstDescs;
 }

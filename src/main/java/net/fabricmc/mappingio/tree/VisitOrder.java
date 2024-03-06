@@ -107,7 +107,7 @@ public final class VisitOrder {
 	}
 
 	public VisitOrder methodVarsByLvIndex() {
-		return methodVarComparator(Comparator.comparingInt(MethodVarMappingView::getLvIndex).thenComparingInt(MethodVarMappingView::getStartOpIdx));
+		return methodVarComparator(Comparator.comparingInt(MethodVarMappingView::getLvIndex).thenComparingInt(MethodVarMappingView::getLvtRowIndex));
 	}
 
 	public VisitOrder methodsFirst(boolean methodsFirst) {

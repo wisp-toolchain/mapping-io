@@ -559,17 +559,17 @@ public final class MemoryMappingTree implements VisitableMappingTree {
 	}
 
 	@Override
-	public boolean visitMethodVar(int lvtRowIndex, int lvIndex, int startOpIdx, int endOpIdx, @Nullable String srcName) {
+	public boolean visitMethodVar(int lvtRowIndex, int lvIndex, @Nullable String srcName) {
 		if (currentMethod == null) throw new UnsupportedOperationException("Tried to visit method variable before owning method");
 
-		MethodVarEntry var = currentMethod.getVar(lvtRowIndex, lvIndex, startOpIdx, endOpIdx, srcName);
+		MethodVarEntry var = currentMethod.getVar(lvtRowIndex, lvIndex, srcName);
 
 		if (var == null) {
-			var = new MethodVarEntry(currentMethod, lvtRowIndex, lvIndex, startOpIdx, endOpIdx, srcName);
+			var = new MethodVarEntry(currentMethod, lvtRowIndex, lvIndex, srcName);
 			var = currentMethod.addVar(var);
 		} else {
 			if (lvtRowIndex >= 0 && var.lvtRowIndex < 0) var.setLvtRowIndex(lvtRowIndex);
-			if (lvIndex >= 0 && startOpIdx >= 0 && (var.lvIndex < 0 || var.startOpIdx < 0)) var.setLvIndex(lvIndex, startOpIdx, endOpIdx);
+			if (lvIndex >= 0) var.setLvIndex(lvIndex);
 
 			if (srcName != null) {
 				assert !srcName.isEmpty();
@@ -1347,7 +1347,7 @@ public final class MemoryMappingTree implements VisitableMappingTree {
 
 		@Override
 		@Nullable
-		public MethodVarEntry getVar(int lvtRowIndex, int lvIndex, int startOpIdx, int endOpIdx, @Nullable String srcName) {
+		public MethodVarEntry getVar(int lvtRowIndex, int lvIndex, @Nullable String srcName) {
 			if (vars == null) return null;
 
 			if (lvtRowIndex >= 0) {
@@ -1379,29 +1379,6 @@ public final class MemoryMappingTree implements VisitableMappingTree {
 						if (entry.lvIndex < 0) hasMissing = true;
 						continue;
 					}
-
-					if (startOpIdx >= 0 && endOpIdx >= 0 && entry.startOpIdx >= 0 && entry.endOpIdx >= 0) { // full ranges on both
-						if (startOpIdx >= entry.endOpIdx || endOpIdx <= entry.startOpIdx) { // non-overlapping op idx ranges
-							continue;
-						} else { // full match
-							return entry;
-						}
-					}
-
-					if (endOpIdx >= 0 && entry.startOpIdx >= 0 && endOpIdx <= entry.startOpIdx
-							|| entry.endOpIdx >= 0 && startOpIdx >= 0 && entry.endOpIdx <= startOpIdx) {
-						// incompatible full range on one side
-						continue;
-					}
-
-					if (startOpIdx < 0 || startOpIdx == entry.startOpIdx) {
-						return entry;
-					}
-
-					if (bestMatch == null
-							|| entry.startOpIdx >= 0 && Math.abs(entry.startOpIdx - startOpIdx) < Math.abs(bestMatch.startOpIdx - startOpIdx)) {
-						bestMatch = entry;
-					}
 				}
 
 				if (!hasMissing || bestMatch != null) return bestMatch;
@@ -1423,7 +1400,7 @@ public final class MemoryMappingTree implements VisitableMappingTree {
 		@Override
 		public MethodVarEntry addVar(MethodVarMapping var) {
 			MethodVarEntry entry = var instanceof MethodVarEntry && var.getMethod() == this ? (MethodVarEntry) var : new MethodVarEntry(this, var, owner.tree.getSrcNsEquivalent(var));
-			MethodVarEntry prev = getVar(var.getLvtRowIndex(), var.getLvIndex(), var.getStartOpIdx(), var.getEndOpIdx(), var.getSrcName());
+			MethodVarEntry prev = getVar(var.getLvtRowIndex(), var.getLvIndex(), var.getSrcName());
 
 			if (prev == null) {
 				if (vars == null) vars = new ArrayList<>();
@@ -1438,8 +1415,8 @@ public final class MemoryMappingTree implements VisitableMappingTree {
 		private void updateVar(MethodVarEntry existing, MethodVarEntry toAdd, boolean replace) {
 			if (toAdd.lvtRowIndex >= 0 && existing.lvtRowIndex < 0) existing.setLvtRowIndex(toAdd.lvtRowIndex);
 
-			if (toAdd.lvIndex >= 0 && toAdd.startOpIdx >= 0 && (existing.lvIndex < 0 || existing.startOpIdx < 0)) {
-				existing.setLvIndex(toAdd.lvIndex, toAdd.startOpIdx, toAdd.endOpIdx);
+			if (toAdd.lvIndex >= 0) {
+				existing.setLvIndex(toAdd.lvIndex);
 			}
 
 			existing.copyFrom(toAdd, replace);
@@ -1447,8 +1424,8 @@ public final class MemoryMappingTree implements VisitableMappingTree {
 
 		@Override
 		@Nullable
-		public MethodVarEntry removeVar(int lvtRowIndex, int lvIndex, int startOpIdx, int endOpIdx, @Nullable String srcName) {
-			MethodVarEntry ret = getVar(lvtRowIndex, lvIndex, startOpIdx, endOpIdx, srcName);
+		public MethodVarEntry removeVar(int lvtRowIndex, int lvIndex, @Nullable String srcName) {
+			MethodVarEntry ret = getVar(lvtRowIndex, lvIndex, srcName);
 			if (ret != null) vars.remove(ret);
 
 			return ret;
@@ -1496,7 +1473,7 @@ public final class MemoryMappingTree implements VisitableMappingTree {
 
 			if (o.vars != null) {
 				for (MethodVarEntry oVar : o.vars) {
-					MethodVarEntry var = getVar(oVar.lvtRowIndex, oVar.lvIndex, oVar.startOpIdx, oVar.endOpIdx, oVar.srcName);
+					MethodVarEntry var = getVar(oVar.lvtRowIndex, oVar.lvIndex, oVar.srcName);
 
 					if (var == null) { // missing
 						addVar(oVar);
@@ -1598,14 +1575,12 @@ public final class MemoryMappingTree implements VisitableMappingTree {
 	}
 
 	static final class MethodVarEntry extends Entry<MethodVarEntry> implements MethodVarMapping {
-		MethodVarEntry(MethodEntry method, int lvtRowIndex, int lvIndex, int startOpIdx, int endOpIdx, @Nullable String srcName) {
+		MethodVarEntry(MethodEntry method, int lvtRowIndex, int lvIndex, @Nullable String srcName) {
 			super(method.owner.tree, srcName);
 
 			this.method = method;
 			this.lvtRowIndex = lvtRowIndex;
 			this.lvIndex = lvIndex;
-			this.startOpIdx = startOpIdx;
-			this.endOpIdx = endOpIdx;
 		}
 
 		MethodVarEntry(MethodEntry method, MethodVarMapping src, int srcNs) {
@@ -1614,8 +1589,6 @@ public final class MemoryMappingTree implements VisitableMappingTree {
 			this.method = method;
 			this.lvtRowIndex = src.getLvtRowIndex();
 			this.lvIndex = src.getLvIndex();
-			this.startOpIdx = src.getStartOpIdx();
-			this.endOpIdx = src.getEndOpIdx();
 		}
 
 		@Override
@@ -1649,20 +1622,8 @@ public final class MemoryMappingTree implements VisitableMappingTree {
 		}
 
 		@Override
-		public int getStartOpIdx() {
-			return startOpIdx;
-		}
-
-		@Override
-		public int getEndOpIdx() {
-			return endOpIdx;
-		}
-
-		@Override
-		public void setLvIndex(int lvIndex, int startOpIdx, int endOpIdx) {
+		public void setLvIndex(int lvIndex) {
 			this.lvIndex = lvIndex;
-			this.startOpIdx = startOpIdx;
-			this.endOpIdx = endOpIdx;
 		}
 
 		public void setSrcName(@Nullable String name) {
@@ -1670,7 +1631,7 @@ public final class MemoryMappingTree implements VisitableMappingTree {
 		}
 
 		void accept(MappingVisitor visitor) throws IOException {
-			if (visitor.visitMethodVar(lvtRowIndex, lvIndex, startOpIdx, endOpIdx, srcName)) {
+			if (visitor.visitMethodVar(lvtRowIndex, lvIndex, srcName)) {
 				acceptElement(visitor, null);
 			}
 		}
@@ -1686,14 +1647,12 @@ public final class MemoryMappingTree implements VisitableMappingTree {
 
 		@Override
 		public String toString() {
-			return String.format("%d/%d@%d-%d:%s", lvtRowIndex, lvIndex, startOpIdx, endOpIdx, srcName);
+			return String.format("%d/%d:%s", lvtRowIndex, lvIndex, srcName);
 		}
 
 		private final MethodEntry method;
 		private int lvtRowIndex;
 		private int lvIndex;
-		private int startOpIdx;
-		private int endOpIdx;
 	}
 
 	static final class MemberKey {

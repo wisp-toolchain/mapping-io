@@ -13,7 +13,7 @@ allprojects {
 	apply plugin: "com.diffplug.spotless"
 	apply plugin: "me.modmuss50.remotesign"
 
-	group "net.fabricmc"
+	group "me.alphamode.wisp"
 
 	tasks.withType(JavaCompile).configureEach {
 		it.options.encoding = "UTF-8"
