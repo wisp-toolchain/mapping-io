@@ -78,7 +78,7 @@ public final class RecafSimpleFileWriter implements MappingWriter {
 	}
 
 	@Override
-	public boolean visitMethodVar(int lvtRowIndex, int lvIndex, int startOpIdx, int endOpIdx, String srcName) throws IOException {
+	public boolean visitMethodVar(int lvtRowIndex, int lvIndex, String srcName) throws IOException {
 		return false; // not supported, skip
 	}
 

@@ -80,7 +80,7 @@ public final class CsrgFileWriter implements MappingWriter {
 	}
 
 	@Override
-	public boolean visitMethodVar(int lvtRowIndex, int lvIndex, int startOpIdx, int endOpIdx, @Nullable String srcName) throws IOException {
+	public boolean visitMethodVar(int lvtRowIndex, int lvIndex, @Nullable String srcName) throws IOException {
 		return false; // not supported, skip
 	}
 
